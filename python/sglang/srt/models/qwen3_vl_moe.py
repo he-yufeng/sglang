@@ -313,6 +313,9 @@ class Qwen3VLMoeForConditionalGeneration(Qwen3VLForConditionalGeneration):
                             and name_mapped not in params_dict
                         ):
                             continue
+                        # PP: layer might not live on this rank
+                        if name_mapped not in params_dict:
+                            break
                         param = params_dict[name_mapped]
                         # We should ask the weight loader to return success or
                         # not here since otherwise we may skip experts with
