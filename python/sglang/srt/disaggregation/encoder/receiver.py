@@ -40,6 +40,7 @@ from sglang.srt.managers.schedule_batch import Modality, Req
 from sglang.srt.multimodal.cache import media_preprocess_kwargs
 from sglang.srt.multimodal.transport import determine_tensor_transport_mode
 from sglang.srt.runtime_context import (
+    get_device,
     get_disagg,
     get_exec,
     get_mm,
@@ -1921,7 +1922,7 @@ class MMReceiverBase(ABC):
                 self.scheduler_embedding_port,
             )
         self.scheduler = scheduler
-        self.gpu_id = scheduler.ps.gpu_id if scheduler is not None else 0
+        self.gpu_id = get_device().gpu_id if scheduler is not None else 0
         self.wait_timeout = envs.SGLANG_ENCODER_RECV_TIMEOUT.get()
         self.embedding_pool = None
 
@@ -2000,7 +2001,7 @@ class MMReceiverBase(ABC):
         import_processors("sglang.srt.multimodal.processors")
 
         extra_kwargs = {}
-        if getattr(server_args, "tokenizer_backend", None) is not None:
+        if get_serving().tokenizer_backend is not None:
             extra_kwargs["tokenizer_backend"] = get_serving().tokenizer_backend
 
         _processor = get_processor(
